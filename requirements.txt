@@ -1,0 +1,17 @@
+numpy
+pandas
+ipython
+huggingface_hub
+datasets
+dataclasses
+transformers
+git-lfs
+jiwer
+accelerate
+ipywidgets
+evaluate
+torch
+torchvision
+torchaudio
+torchcodec
+typing
