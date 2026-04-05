@@ -56,22 +56,24 @@ def prepare_dataset(processor, batch):
 
 def load_dataset_and_create_vocab():
     print("Loading and preparing dataset...")
+    # common_voice = list( ["train", "validation", "test"].map(lambda x : load_dataset("fixie-ai/common_voice_17_0", data_dir="ru", split=x)) )
     common_voice_train = load_dataset("fixie-ai/common_voice_17_0", data_dir="ru", split="train")
     common_voice_validation = load_dataset("fixie-ai/common_voice_17_0", data_dir="ru", split="validation")
     common_voice_test = load_dataset("fixie-ai/common_voice_17_0", data_dir="ru", split="test")
 
     # Remove unneeded columns
     print("Removing unneeded columns")
-    common_voice_train = common_voice_train.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
-    common_voice_validation = common_voice_validation.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
-    common_voice_test = common_voice_test.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
+    columns_to_remove = ["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"]
+    common_voice_train = common_voice_train.remove_columns(columns_to_remove)
+    common_voice_validation = common_voice_validation.remove_columns(columns_to_remove)
+    common_voice_test = common_voice_test.remove_columns(columns_to_remove)
 
     print("Showing random elements in train")
     show_random_elements(common_voice_train.cast_column("audio", Audio(sampling_rate=16000)), num_examples=10)
 
     # Remove special characters
     print("Removing Special Characters")
-    chars_to_remove_regex = '[^a-zA-Zа-яА-ЯёЁ]+'
+    chars_to_remove_regex = '[^а-яА-ЯёЁ]+'
     common_voice_train = common_voice_train.map(remove_special_characters, chars_to_remove_regex)
     common_voice_validation = common_voice_validation.map(remove_special_characters,  chars_to_remove_regex)
     common_voice_test = common_voice_test.map(remove_special_characters, chars_to_remove_regex)
