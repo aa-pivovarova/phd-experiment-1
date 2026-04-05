@@ -1,19 +1,17 @@
-from huggingface_hub import notebook_login
-from datasets import load_dataset, Audio, ClassLabel
-import random
+import re, json, random
+from functools import partial
 import pandas as pd
+import numpy as np
+
+from huggingface_hub import notebook_login
+import librosa, soundfile
+from datasets import load_dataset, Audio, ClassLabel
 import IPython.display as ipd
 from IPython.display import display, HTML
-import re
-import json
 from transformers import Wav2Vec2CTCTokenizer, SeamlessM4TFeatureExtractor, Wav2Vec2BertProcessor, Wav2Vec2BertForCTC, TrainingArguments, Trainer, AutoModelForCTC
 import torch
 import torchaudio
 import evaluate
-import numpy as np
-import random
-import torchcodec
-from functools import partial
 
 #############################################################################
 ### HELPER FUNCTIONS
@@ -56,11 +54,11 @@ def prepare_dataset(processor, batch):
 #################################################################################
 ###### BODY FUNCTIONS
 
-def load_and_prepare_dataset():
+def load_dataset_and_create_vocab():
     print("Loading and preparing dataset...")
-    common_voice_train = load_dataset("fixie-ai/common_voice_17_0", "ru", split="train")
-    common_voice_validation = load_dataset("fixie-ai/common_voice_17_0", "ru", split="validation")
-    common_voice_test = load_dataset("fixie-ai/common_voice_17_0", "ru", split="test")
+    common_voice_train = load_dataset("fixie-ai/common_voice_17_0", data_dir="ru", split="train")
+    common_voice_validation = load_dataset("fixie-ai/common_voice_17_0", data_dir="ru", split="validation")
+    common_voice_test = load_dataset("fixie-ai/common_voice_17_0", data_dir="ru", split="test")
 
     # Remove unneeded columns
     print("Removing unneeded columns")
@@ -73,10 +71,10 @@ def load_and_prepare_dataset():
 
     # Remove special characters
     print("Removing Special Characters")
-    chars_to_remove_regex = '[\,\?\.\!\-\;\:\"\“\%\‘\”\ \'\»\«]'
-    common_voice_train = common_voice_train.map(remove_special_characters, chars_to_remove_regex=chars_to_remove_regex)
-    common_voice_validation = common_voice_validation.map(remove_special_characters,  chars_to_remove_regex=chars_to_remove_regex)
-    common_voice_test = common_voice_test.map(remove_special_characters, chars_to_remove_regex=chars_to_remove_regex)
+    chars_to_remove_regex = '[^a-zA-Zа-яА-ЯёЁ]+'
+    common_voice_train = common_voice_train.map(remove_special_characters, chars_to_remove_regex)
+    common_voice_validation = common_voice_validation.map(remove_special_characters,  chars_to_remove_regex)
+    common_voice_test = common_voice_test.map(remove_special_characters, chars_to_remove_regex)
 
     print("Showing random elements in train")
     show_random_elements(common_voice_train.remove_columns(["path","audio"]))
@@ -89,7 +87,7 @@ def load_and_prepare_dataset():
     
     vocab_list = list(set(vocab_train["vocab"][0]) | set(vocab_test["vocab"][0]))
     vocab_dict = {v: k for k, v in enumerate(sorted(vocab_list))}
-    vocab_dict
+    print(vocab_dict)
 
     # Remove latin characters
     print("Removing latin characters")
@@ -120,9 +118,6 @@ def load_and_prepare_dataset():
 
 def preprocess_data(processor, common_voice_train, common_voice_validation, common_voice_test):
     print("Preprocessing data...")
-    print(torch.__version__)
-    print(torchaudio.__version__)
-    print(torchcodec.__version__)
     
     print(common_voice_train[0]["path"])
     print(common_voice_train[0]["audio"])
@@ -148,6 +143,7 @@ def preprocess_data(processor, common_voice_train, common_voice_validation, comm
     common_voice_validation = common_voice_validation.map(prepare_dataset, processor=processor, remove_columns=common_voice_validation.column_names)
     common_voice_test = common_voice_test.map(prepare_dataset, processor=processor, remove_columns=common_voice_test.column_names)
     print("Data preprocessed")
+    return common_voice_train, common_voice_validation, common_voice_test
 
 def compute_metrics(pred, processor):
     print("Computing metrics...")
