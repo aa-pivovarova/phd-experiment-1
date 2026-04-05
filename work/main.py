@@ -11,6 +11,7 @@ def main() -> int:
     common_voice_train, common_voice_validation, common_voice_test = functions.preprocess_data(processor, common_voice_train, common_voice_validation, common_voice_test)
     functions.trainer(repo_name, model, data_collator, common_voice_train, common_voice_test, processor)
     functions.evaluate(common_voice_test)
+    return 0
 
 if __name__=="__main__":
     main()
