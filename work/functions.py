@@ -339,7 +339,7 @@ def build_graphs(fold, trainer):
         f"training_curves-fold{fold}.png")
     plt.savefig(plot_path)
     plt.close()
-    print(f"📉 Training curves saved to {plot_path}")
+    print(f"Training curves saved to {plot_path}")
 
 def create_trainer(
         fold, config, repo_name, model,
@@ -376,6 +376,7 @@ def create_trainer(
         eval_dataset=val_dataset,
         processing_class=processor
     )
+
     trainer.train()
     metrics = trainer.evaluate()
     trainer.save_model(f"{repo_name}-fold-{fold}/best_model")
@@ -407,11 +408,11 @@ def subject_kfold_cross_validation(
         processor = create_processor()
         data_collator = DataCollatorForSpeechClassification(processor=processor)
 
-        if all(os.path.exists(f"saved_datasets/{split}_dataset-fold-{fold}") for split in ["train", "val", "test"]):
+        if all(os.path.exists(f"saved_df/{split}_dataset-fold-{fold}") for split in ["train", "val", "test"]):
             print("Loading datasets from disk...")
-            train_dataset = load_from_disk(f"saved_datasets/train_dataset-fold-{fold}")
-            val_dataset = load_from_disk(f"saved_datasets/val_dataset-fold-{fold}")
-            test_dataset = load_from_disk(f"saved_datasets/test_dataset-fold-{fold}")
+            train_dataset = load_from_disk(f"saved_df/train_dataset-fold-{fold}")
+            val_dataset = load_from_disk(f"saved_df/val_dataset-fold-{fold}")
+            test_dataset = load_from_disk(f"saved_df/test_dataset-fold-{fold}")
             print("Datasets loaded successfully.")
 
         else:
