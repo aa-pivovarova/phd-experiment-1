@@ -1,13 +1,11 @@
 # phd-experiment-1
 
-Currently working on fine-tuning a w2v2-bert-2.0 on the TORGO DB.
+Currently working on fine-tuning a w2v2-bert-2.0 on the EasyCall DB.
 - functions.py - for all functions
 - main.py - launch with `python main.py` and wait.
 
 DOCKER INFORMATION
 - Simply run docker
-- Environment variables:
-- - HF_TOKEN - huggingface personal write license token for downloads and checkpoints
 
 <details>
 <summary><b>Previous exp:</b></summary>
