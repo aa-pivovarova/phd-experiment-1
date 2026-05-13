@@ -6,11 +6,11 @@ dataclasses # @dataclass
 transformers # Wav2Vec2BertProcessor, Trainer, TrainingArguments, Wav2Vec2BertForSequenceClassification
 accelerate # Неявно требуется transformers, но не вызывается напрямую
 evaluate # evaluate.load("accuracy"), "f1" и т.д.
-torchaudio # Косвенно: Audio(sampling_rate=...) в datasets использует torchaudio для загрузки .wav. Нужна!
+torch
+torchaudio # Косвенно: Audio(sampling_rate=...) в datasets использует torchaudio для загрузки .wav.
 typing # List, Dict, Union
 ipython # IPython.display → display, HTML
 ipywidgets
-huggingface_hub # notebook_login()
 optuna # Для подбора гиперпараметров
 matplotlib # Для графиков
 optuna-dashboard # Optuna дашборд с графиками
